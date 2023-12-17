@@ -14,8 +14,7 @@ Link soon
 
 
 **Installation:**
-Create Items
-
+**Create Items**<br>
 /ox_inventory/data/items.lua
 ```
 ['tuna'] = {
@@ -53,7 +52,7 @@ Create Items
 },
 ```
 
-Create Fishing Rod
+**Create Fishing Rod**<br>
 /ox_inventory/data/weapons.lua
 ```
 ['fishingrod'] = {
@@ -64,3 +63,14 @@ Create Fishing Rod
   close = true,
 },
 ```
+
+**Add usable item**<br>
+/ox_inventory/modules/items/client.lua
+```
+Item('fishingrod', function(data, slot)
+  ox_inventory:useItem(data, function(data)
+    if data then
+      TriggerEvent('aleks_fishing:startFishing')
+    end
+  end)
+end)```
