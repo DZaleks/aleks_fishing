@@ -73,4 +73,5 @@ Item('fishingrod', function(data, slot)
       TriggerEvent('aleks_fishing:startFishing')
     end
   end)
-end)```
+end)
+```
