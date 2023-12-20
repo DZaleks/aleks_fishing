@@ -10,17 +10,17 @@ function SendNotification(message, type)
 end
 
 
-function WaterCheck()
-    local headPos = GetPedBoneCoords(GetPlayerPed(-1), 31086, 0.0, 0.0, 0.0)
-    local offsetPos = GetOffsetFromEntityInWorldCoords(GetPlayerPed(-1), 0.0, 50.0, -25.0)
+function WaterCheck(playerPed)
+    local headPos = GetPedBoneCoords(playerPed, 31086, 0.0, 0.0, 0.0)
+    local offsetPos = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 50.0, -25.0)
     local water, waterPos = TestProbeAgainstWater(headPos.x, headPos.y, headPos.z, offsetPos.x, offsetPos.y, offsetPos.z)
     return water, waterPos
 end
 
-function StopFishing()
+function StopFishing(playerPed)
     DeleteObject(POLE)
     DeleteEntity(POLE)
-    ClearPedTasks(GetPlayerPed(-1))
+    ClearPedTasks(playerPed)
     DeleteObject(POLE)
     RemoveAnimDict('mini@tennis')
     RemoveAnimDict('amb@world_human_stand_fishing@idle_a')
@@ -89,21 +89,23 @@ end
 
 function StartFishing()
     if FishingActive == true then return end
-    local isNearWater, WaterLocation = WaterCheck()
+
+    local playerPed = PlayerPedId()
+    local isNearWater, WaterLocation = WaterCheck(playerPed)
     local hasKoeder = exports.ox_inventory:GetItemCount(Config.FishbaitItem)
     if isNearWater == 1 then
         HasAngel = GetAngelDurability()
         if HasAngel == true and hasKoeder >= 1 then
             lib.requestModel(MODEL, 100)
-            POLE = CreateObject(MODEL, GetEntityCoords(GetPlayerPed(-1)), true, false, false)
-            AttachEntityToEntity(POLE, GetPlayerPed(-1), GetPedBoneIndex(GetPlayerPed(-1), 18905), 0.1, 0.05, 0, 80.0, 120.0, 160.0, true, true, false, true, 1, true)
+            POLE = CreateObject(MODEL, GetEntityCoords(playerPed), true, false, false)
+            AttachEntityToEntity(POLE, playerPed, GetPedBoneIndex(playerPed, 18905), 0.1, 0.05, 0, 80.0, 120.0, 160.0, true, true, false, true, 1, true)
             SetModelAsNoLongerNeeded(MODEL)
 
             lib.requestAnimDict('mini@tennis', 100)
             lib.requestAnimDict('amb@world_human_stand_fishing@idle_a', 100)
-            TaskPlayAnim(GetPlayerPed(-1), 'mini@tennis', 'forehand_ts_md_far', 1.0, -1.0, 1.0, 48, 0, false, false, false)
+            TaskPlayAnim(playerPed, 'mini@tennis', 'forehand_ts_md_far', 1.0, -1.0, 1.0, 48, 0, false, false, false)
             Wait(1000)
-            TaskPlayAnim(GetPlayerPed(-1), 'amb@world_human_stand_fishing@idle_a', 'idle_c', 1.0, -1.0, 1.0, 11, 0, false, false, false)
+            TaskPlayAnim(playerPed, 'amb@world_human_stand_fishing@idle_a', 'idle_c', 1.0, -1.0, 1.0, 11, 0, false, false, false)
             FishingActive = true
             ActivateFishingControl()
             sleep = 10000
@@ -115,14 +117,14 @@ function StartFishing()
                         if FishingActive == false then break end
                         if HasAngel == false or HasAngel == nil then
                             SendNotification("You got no fishing rod!", "error")
-                            StopFishing()
+                            StopFishing(playerPed)
                             break
                         end
                         local hasKoeder = exports.ox_inventory:GetItemCount(Config.FishbaitItem)
                         if hasKoeder >= 1 then
                             GetFish()
                         else
-                            StopFishing()
+                            StopFishing(playerPed)
                             SendNotification("You got no more fish bait!", "error")
                             FishingActive = false
                             break
@@ -146,7 +148,7 @@ function ActivateFishingControl()
         while true do
             ShowHelpText("Press ~INPUT_FRONTEND_RRIGHT~ to cancel")
             if IsControlJustReleased(0, 194) then
-                StopFishing()
+                StopFishing(PlayerPedId())
                 break
             end
             Wait(0)
@@ -164,7 +166,7 @@ end)
 
 AddEventHandler('esx:onPlayerDeath', function(data)
     if FishingActive == true then
-        StopFishing()
+        StopFishing(PlayerPedId())
     end
 end)
 
