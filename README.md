@@ -1,5 +1,5 @@
-**CFX Forum Post**
-Link soon
+**CFX Forum Post**<br>
+[Click here](https://forum.cfx.re/t/release-aleks-fishing-ox/5193166)
 
 **Features**
 * Multiple fishs + chance of bite
